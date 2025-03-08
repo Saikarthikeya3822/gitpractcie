@@ -1,6 +1,27 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+//import { handleDelete, handleUpdate } from "./productService"; // Import functions
+import { handleDelete,handleUpdate } from "../service/productService";
+import axios from "axios";
 
-const ProductList = ({ products, loading, error }) => {
+const ProductList = () => {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/products") // Fetch products
+      .then((response) => {
+        setProducts(response.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching products:", error);
+        setError("Failed to load products.");
+        setLoading(false);
+      });
+  }, []);
+
   return (
     <div>
       <h3 className="text-center mb-4">Product List</h3>
@@ -26,6 +47,18 @@ const ProductList = ({ products, loading, error }) => {
                   <p className="card-text">
                     <strong>Status:</strong> {product.isActive ? "Active" : "Inactive"}
                   </p>
+                  <button
+                    className="btn btn-primary me-2"
+                    onClick={() => handleUpdate(product.prodId, setProducts)}
+                  >
+                    Update
+                  </button>
+                  <button
+                    className="btn btn-danger"
+                    onClick={() => handleDelete(product.prodId, setProducts)}
+                  >
+                    Delete
+                  </button>
                 </div>
               </div>
             </div>
@@ -37,5 +70,4 @@ const ProductList = ({ products, loading, error }) => {
     </div>
   );
 };
-
 export default ProductList;
